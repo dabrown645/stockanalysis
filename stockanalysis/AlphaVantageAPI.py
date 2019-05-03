@@ -1,7 +1,22 @@
 class AlphaVantage(object):
     """This class can make any call to AlphaVantage api"""
 
-    def __init__(self, api_key, default_outputsize="full", default_datatype="csv"):
+    def __init__(self, api_key,
+                 default_datatype="csv",
+                 default_fastdmatype=0,
+                 default_fastdperiod=3,
+                 default_fastkperiod=5,
+                 default_fastlimit=0.01,
+                 default_slowlimit=0.01,
+                 default_fastperiod=12,
+                 default_signalperiod=9,
+                 default_slowperiod=26,
+                 default_slowdmatype=0,
+                 default_slowdperiod=3,
+                 default_slowkmatype=0,
+                 default_slowkperiod=3,
+                 default_outputsize="full",
+                 ):
         super(AlphaVantage, self).__init__()
         self.api_key = api_key
         self.accepted_datatypes = ("csv", "json")
@@ -10,10 +25,20 @@ class AlphaVantage(object):
             raise ValueError('%s datatype is not among the accepted: %s' % (self.accepted_datatypes, default_datatypes))
 
         self.defaults = {
-            "outputsize": default_outputsize,
             "datatype": default_datatype,
-            "fastlimit": 0.01,
-            "slowlimit": 0.01
+            "fastdmatype": default_fastdmatype,
+            "fastdperiod": default_fastdperiod,
+            "fastkperiod": default_fastkperiod,
+            "fastlimit": default_fastlimit,
+            "slowlimit": default_slowlimit,
+            "fastperiod": default_fastperiod,
+            "signalperiod": default_signalperiod,
+            "slowperiod": default_slowperiod,
+            "slowdmatype": default_slowdmatype,
+            "slowdperiod": default_slowdperiod,
+            "slowkmatype": default_slowkmatype,
+            "slowkperiod": default_slowkperiod,
+            "outputsize": default_outputsize,
         }
 
         self.functions_defs = {
@@ -42,15 +67,16 @@ class AlphaVantage(object):
             "EMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
             "WMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
             "DEMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-            "TEMA": ("symbol", "interval", "series_type", "datatype"),
-            "TRIMA": ("symbol", "interval", "series_type", "datatype"),
-            "KAMA": ("symbol", "interval", "series_type", "datatype"),
-            "MAMA": ("symbol", "interval", "series_type", "datatype"),
-            "T3": ("symbol", "interval", "series_type", "datatype"),
-            "MACD": ("symbol", "interval", "series_type", "datatype"),
-            "MACDEXT": ("symbol", "interval", "series_type", "datatype"),
-            "STOCH": ("symbol", "interval", "series_type", "datatype"),
-            "STOCHF": ("symbol", "interval", "series_type", "datatype"),
+            "TEMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "TRIMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "KAMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "MAMA": ("symbol", "interval", "series_type", "fastlimit", "slowlimit", "datatype"),
+            "VWAP": ("symbol", "interval", "datatype"),
+            "T3": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "MACD": ("symbol", "interval", "series_type", "fastperiod", "slowperiod", "signalperiod", "datatype"),
+            "MACDEXT": ("symbol", "interval", "series_type", "fastperiod", "slowperiod", "signalperiod", "datatype"),
+            "STOCH": ("symbol", "interval", "fastkperiod", "slowkperiod", "slowdperiod", "slowkmatype", "slowdmatype", "datatype"),
+            "STOCHF": ("symbol", "interval", "fastkperiod", "fastdperiod", "fastdmatype", "datatype"),
             "RSI": ("symbol", "interval", "series_type", "datatype"),
             "STOCHRSI": ("symbol", "interval", "series_type", "datatype"),
             "WILLR": ("symbol", "interval", "series_type", "datatype"),
@@ -173,8 +199,9 @@ class AlphaVantage(object):
 if __name__ == "__main__":
     import json
     alpha = AlphaVantage(api_key="&apikey=BXCLSC7GAHP5UGGO", default_datatype="json")
-    ticker = input("Enter ticker: ")
-    ticker = ticker.upper()
+    #ticker = input("Enter ticker: ")
+    #ticker = ticker.upper()
+    ticker = "IBM"
 
     ### STOCKS
     #print(f'available functions: {alpha.get_available_functions()}')
@@ -245,18 +272,39 @@ if __name__ == "__main__":
     ##"WMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
     #results = alpha.WMA(symbol=ticker, interval="monthly", time_period="60", series_type="close")
     #print(json.dumps(results, indent=4, sort_keys=True))
-    #"DEMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    results = alpha.DEMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
+    ##"DEMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
+    #results = alpha.DEMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"TEMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
+    #results = alpha.TEMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"TRIMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
+    #results = alpha.TRIMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"KAMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
+    #results = alpha.KAMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"MAMA": ("symbol", "interval", "series_type", "fastlimit", "slowlimit", "datatype"),
+    #results = alpha.MAMA(symbol=ticker, interval="monthly",fastlimit=0.02, slowlimit=0.01, series_type="closed")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"VWAP": ("symbol", "interval", "datatype")
+    #results = alpha.VWAP(symbol=ticker, interval="60min")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"T3": ("symbol", "interval", "time_period", "series_type", "datatype"),
+    #results = alpha.T3(symbol=ticker, interval="weekly", time_period=60, series_type="close")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"MACD": ("symbol", "interval", "series_type", "fastperiod", "slowperiod", "signalperiod", "datatype"),
+    #results = alpha.MACD(symbol=ticker, interval="monthly", fastperiod=12, slowperiod=26, signalperiod=9, series_type="close")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"MACDEXT": ("symbol", "interval", "series_type", "datatype"),
+    #results = alpha.MACDEXT(symbol=ticker, interval="monthly", fastperiod=12, slowperiod=26, signalperiod=9, series_type="close")
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    ##"STOCH": ("symbol", "interval", "fastkperiod", "slowkperiod", "slowdperiod", "slowkmatype", "slowdmatype", "datatype"),
+    #results = alpha.STOCH(symbol=ticker, interval="monthly", fastkperiod=5, slowkperiod=3, slowdperiod=3, slowkmatype=0, slowdmatype=0)
+    #print(json.dumps(results, indent=4, sort_keys=True))
+    #"STOCHF": ("symbol", "interval", "fastkperiod", "fastdperiod", "fastdmatype", "datatype"),
+    results = alpha.STOCHF(symbol=ticker, interval="monthly", fastkperiod=5, fastdperiod=3, fastdmatype=0)
     print(json.dumps(results, indent=4, sort_keys=True))
-    #"TEMA": ("symbol", "interval", "series_type", "datatype"),
-    #"TRIMA": ("symbol", "interval", "series_type", "datatype"),
-    #"KAMA": ("symbol", "interval", "series_type", "datatype"),
-    #"MAMA": ("symbol", "interval", "series_type", "datatype"),
-    #"T3": ("symbol", "interval", "series_type", "datatype"),
-    #"MACD": ("symbol", "interval", "series_type", "datatype"),
-    #"MACDEXT": ("symbol", "interval", "series_type", "datatype"),
-    #"STOCH": ("symbol", "interval", "series_type", "datatype"ibm),
-    #"STOCHF": ("symbol", "interval", "series_type", "datatype"),
     #"RSI": ("symbol", "interval", "series_type", "datatype"),
     #"STOCHRSI": ("symbol", "interval", "series_type", "datatype"),
     #"WILLR": ("symbol", "interval", "series_type", "datatype"),
