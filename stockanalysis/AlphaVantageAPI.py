@@ -2,6 +2,7 @@ class AlphaVantage(object):
     """This class can make any call to AlphaVantage api"""
 
     def __init__(self, api_key,
+                 default_accelertion=0.01,
                  default_datatype="csv",
                  default_fastdmatype=0,
                  default_fastdperiod=3,
@@ -9,13 +10,20 @@ class AlphaVantage(object):
                  default_fastlimit=0.01,
                  default_slowlimit=0.01,
                  default_fastperiod=12,
+                 default_matype=0,
+                 default_maximum=0.02,
+                 default_ndevdn=2,
+                 default_ndevup=2,
+                 default_outputsize="full",
                  default_signalperiod=9,
                  default_slowperiod=26,
                  default_slowdmatype=0,
                  default_slowdperiod=3,
                  default_slowkmatype=0,
                  default_slowkperiod=3,
-                 default_outputsize="full",
+                 default_timeperiod1=7,
+                 default_timeperiod2=14,
+                 default_timeperiod3=28,
                  ):
         super(AlphaVantage, self).__init__()
         self.api_key = api_key
@@ -25,20 +33,28 @@ class AlphaVantage(object):
             raise ValueError('%s datatype is not among the accepted: %s' % (self.accepted_datatypes, default_datatypes))
 
         self.defaults = {
+            "acceleration": default_accelertion,
             "datatype": default_datatype,
             "fastdmatype": default_fastdmatype,
             "fastdperiod": default_fastdperiod,
             "fastkperiod": default_fastkperiod,
             "fastlimit": default_fastlimit,
-            "slowlimit": default_slowlimit,
             "fastperiod": default_fastperiod,
+            "matype": default_matype,
+            "maximum": default_maximum,
+            "ndevdn": default_ndevdn,
+            "ndevup": default_ndevup,
+            "outputsize": default_outputsize,
+            "slowlimit": default_slowlimit,
             "signalperiod": default_signalperiod,
             "slowperiod": default_slowperiod,
             "slowdmatype": default_slowdmatype,
             "slowdperiod": default_slowdperiod,
             "slowkmatype": default_slowkmatype,
             "slowkperiod": default_slowkperiod,
-            "outputsize": default_outputsize,
+            "timeperiod1": default_timeperiod1,
+            "timeperiod2": default_timeperiod2,
+            "timeperiod3": default_timeperiod3,
         }
 
         self.functions_defs = {
@@ -77,39 +93,40 @@ class AlphaVantage(object):
             "MACDEXT": ("symbol", "interval", "series_type", "fastperiod", "slowperiod", "signalperiod", "datatype"),
             "STOCH": ("symbol", "interval", "fastkperiod", "slowkperiod", "slowdperiod", "slowkmatype", "slowdmatype", "datatype"),
             "STOCHF": ("symbol", "interval", "fastkperiod", "fastdperiod", "fastdmatype", "datatype"),
-            "RSI": ("symbol", "interval", "series_type", "datatype"),
-            "STOCHRSI": ("symbol", "interval", "series_type", "datatype"),
-            "WILLR": ("symbol", "interval", "series_type", "datatype"),
-            "ADX": ("symbol", "interval", "series_type", "datatype"),
-            "ADXR": ("symbol", "interval", "series_type", "datatype"),
-            "APO": ("symbol", "interval", "series_type", "datatype"),
-            "PPO": ("symbol", "interval", "series_type", "datatype"),
-            "MOM": ("symbol", "interval", "series_type", "datatype"),
-            "BOP": ("symbol", "interval", "series_type", "datatype"),
-            "CCI": ("symbol", "interval", "series_type", "datatype"),
-            "CMO": ("symbol", "interval", "series_type", "datatype"),
-            "ROC": ("symbol", "interval", "series_type", "datatype"),
-            "ROCR": ("symbol", "interval", "series_type", "datatype"),
-            "AROON": ("symbol", "interval", "series_type", "datatype"),
-            "AROONOSC": ("symbol", "interval", "series_type", "datatype"),
-            "MFI": ("symbol", "interval", "series_type", "datatype"),
-            "TRIX": ("symbol", "interval", "series_type", "datatype"),
-            "ULTOSC": ("symbol", "interval", "series_type", "datatype"),
-            "DX": ("symbol", "interval", "series_type", "datatype"),
-            "MINUS_DI": ("symbol", "interval", "series_type", "datatype"),
-            "PLUS_DI": ("symbol", "interval", "series_type", "datatype"),
-            "MINUS_DM": ("symbol", "interval", "series_type", "datatype"),
-            "PLUS_DM": ("symbol", "interval", "series_type", "datatype"),
-            "BBANDS": ("symbol", "interval", "series_type", "datatype"),
-            "MIDPOINT": ("symbol", "interval", "series_type", "datatype"),
-            "MIDPRICE": ("symbol", "interval", "series_type", "datatype"),
-            "SAR": ("symbol", "interval", "series_type", "datatype"),
-            "TRANGE": ("symbol", "interval", "series_type", "datatype"),
-            "ATR": ("symbol", "interval", "series_type", "datatype"),
-            "NATR": ("symbol", "interval", "series_type", "datatype"),
-            "AD": ("symbol", "interval", "series_type", "datatype"),
-            "ADOSC": ("symbol", "interval", "series_type", "datatype"),
-            "OBV": ("symbol", "interval", "series_type", "datatype"),
+
+            "RSI": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "STOCHRSI": ("symbol", "interval", "time_period", "series_type", "fastkperiod", "fastdperiod", "fastdmatype", "datatype"),
+            "WILLR": ("symbol", "interval", "time_period", "datatype"),
+            "ADX": ("symbol", "interval", "time_period", "datatype"),
+            "ADXR": ("symbol", "interval", "time_period", "datatype"),
+            "APO": ("symbol", "interval", "series_type", "fastperiod", "slowperiod", "matype", "datatype"),
+            "PPO": ("symbol", "interval", "series_type", "fastperiod", "slowperiod", "matype", "datatype"),
+            "MOM": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "BOP": ("symbol", "interval", "datatype"),
+            "CCI": ("symbol", "interval", "time_period", "datatype"),
+            "CMO": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "ROC": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "ROCR": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "AROON": ("symbol", "interval", "time_period", "datatype"),
+            "AROONOSC": ("symbol", "interval", "time_period", "datatype"),
+            "MFI": ("symbol", "interval", "time_period", "datatype"),
+            "TRIX": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "ULTOSC": ("symbol", "interval", "timeperiod1", "timeperiod2", "timeperiod3", "datatype"),
+            "DX": ("symbol", "interval", "time_period", "datatype"),
+            "MINUS_DI": ("symbol", "interval", "time_period", "datatype"),
+            "PLUS_DI": ("symbol", "interval", "time_period", "datatype"),
+            "MINUS_DM": ("symbol", "interval", "time_period", "datatype"),
+            "PLUS_DM": ("symbol", "interval", "time_period", "datatype"),
+            "BBANDS": ("symbol", "interval", "time_period", "series_type", "nbdevup", "nbdevdn",  "matype", "datatype"),
+            "MIDPOINT": ("symbol", "interval", "time_period", "series_type", "datatype"),
+            "MIDPRICE": ("symbol", "interval", "time_period", "datatype"),
+            "SAR": ("symbol", "interval", "acceleration", "maximum", "datatype"),
+            "TRANGE": ("symbol", "interval", "datatype"),
+            "ATR": ("symbol", "interval", "time_period", "datatype"),
+            "NATR": ("symbol", "interval", "time_period", "datatype"),
+            "AD": ("symbol", "interval", "datatype"),
+            "ADOSC": ("symbol", "interval", "fastperiod", "slowperiod", "datatype"),
+            "OBV": ("symbol", "interval", "datatype"),
             "HT_TRENDLINE": ("symbol", "interval", "series_type", "datatype"),
             "HT_SINE": ("symbol", "interval", "series_type", "datatype"),
             "HT_TRENDMODE": ("symbol", "interval", "series_type", "datatype"),
@@ -177,7 +194,7 @@ class AlphaVantage(object):
             str_vars = '&'.join(str_vars)
 
             url = "https://www.alphavantage.co/query?%s" % str_vars
-            print(f"url: {url}")
+            print(f'url {url}')
             data = requests.get(url)
 
             if datatype == "csv":
@@ -262,135 +279,4 @@ if __name__ == "__main__":
     #results = alpha.DIGITAL_CURRENCY_MONTHLY(symbol="BTC", market="CNY")
     #print(json.dumps(results, indent=4, sort_keys=True))
 
-    ### INDICTORS
-    ##"SMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.SMA(symbol=ticker, interval="monthly", time_period="60", series_type="close")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"EMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.EMA(symbol=ticker, interval="monthly", time_period="60", series_type="close")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"WMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.WMA(symbol=ticker, interval="monthly", time_period="60", series_type="close")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"DEMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.DEMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"TEMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.TEMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"TRIMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.TRIMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"KAMA": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.KAMA(symbol=ticker, interval="monthly", time_period=60, series_type="closed")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"MAMA": ("symbol", "interval", "series_type", "fastlimit", "slowlimit", "datatype"),
-    #results = alpha.MAMA(symbol=ticker, interval="monthly",fastlimit=0.02, slowlimit=0.01, series_type="closed")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"VWAP": ("symbol", "interval", "datatype")
-    #results = alpha.VWAP(symbol=ticker, interval="60min")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"T3": ("symbol", "interval", "time_period", "series_type", "datatype"),
-    #results = alpha.T3(symbol=ticker, interval="weekly", time_period=60, series_type="close")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"MACD": ("symbol", "interval", "series_type", "fastperiod", "slowperiod", "signalperiod", "datatype"),
-    #results = alpha.MACD(symbol=ticker, interval="monthly", fastperiod=12, slowperiod=26, signalperiod=9, series_type="close")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"MACDEXT": ("symbol", "interval", "series_type", "datatype"),
-    #results = alpha.MACDEXT(symbol=ticker, interval="monthly", fastperiod=12, slowperiod=26, signalperiod=9, series_type="close")
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    ##"STOCH": ("symbol", "interval", "fastkperiod", "slowkperiod", "slowdperiod", "slowkmatype", "slowdmatype", "datatype"),
-    #results = alpha.STOCH(symbol=ticker, interval="monthly", fastkperiod=5, slowkperiod=3, slowdperiod=3, slowkmatype=0, slowdmatype=0)
-    #print(json.dumps(results, indent=4, sort_keys=True))
-    #"STOCHF": ("symbol", "interval", "fastkperiod", "fastdperiod", "fastdmatype", "datatype"),
-    results = alpha.STOCHF(symbol=ticker, interval="monthly", fastkperiod=5, fastdperiod=3, fastdmatype=0)
-    print(json.dumps(results, indent=4, sort_keys=True))
-    #"RSI": ("symbol", "interval", "series_type", "datatype"),
-    #"STOCHRSI": ("symbol", "interval", "series_type", "datatype"),
-    #"WILLR": ("symbol", "interval", "series_type", "datatype"),
-    #"ADX": ("symbol", "interval", "series_type", "datatype"),
-    #"ADXR": ("symbol", "interval", "series_type", "datatype"),
-    #"APO": ("symbol", "interval", "series_type", "datatype"),
-    #"PPO": ("symbol", "interval", "series_type", "datatype"),
-    #"MOM": ("symbol", "interval", "series_type", "datatype"),
-    #"BOP": ("symbol", "interval", "series_type", "datatype"),
-    #"CCI": ("symbol", "interval", "series_type", "datatype"),
-    #"CMO": ("symbol", "interval", "series_type", "datatype"),
-    #"ROC": ("symbol", "interval", "series_type", "datatype"),
-    #"ROCR": ("symbol", "interval", "series_type", "datatype"),
-    #"AROON": ("symbol", "interval", "series_type", "datatype"),
-    #"AROONOSC": ("symbol", "interval", "series_type", "datatype"),
-    #"MFI": ("symbol", "interval", "series_type", "datatype"),
-    #"TRIX": ("symbol", "interval", "series_type", "datatype"),
-    #"ULTOSC": ("symbol", "interval", "series_type", "datatype"),
-    #"DX": ("symbol", "interval", "series_type", "datatype"),
-    #"MINUS_DI": ("symbol", "interval", "series_type", "datatype"),
-    #"PLUS_DI": ("symbol", "interval", "series_type", "datatype"),
-    #"MINUS_DM": ("symbol", "interval", "series_type", "datatype"),
-    #"PLUS_DM": ("symbol", "interval", "series_type", "datatype"),
-    #"BBANDS": ("symbol", "interval", "series_type", "datatype"),
-    #"MIDPOINT": ("symbol", "interval", "series_type", "datatype"),
-    #"MIDPRICE": ("symbol", "interval", "series_type", "datatype"),
-    #"SAR": ("symbol", "interval", "series_type", "datatype"),
-    #"TRANGE": ("symbol", "interval", "series_type", "datatype"),
-    #"ATR": ("symbol", "interval", "series_type", "datatype"),
-    #"NATR": ("symbol", "interval", "series_type", "datatype"),
-    #"AD": ("symbol", "interval", "series_type", "datatype"),
-    #"ADOSC": ("symbol", "interval", "series_type", "datatype"),
-    #"OBV": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_TRENDLINE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_SINE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_TRENDMODE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_DCPERIOD": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_DCPHASE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_PHASOR": ("symbol", "interval", "series_type", "datatype")
-    #"WMA": ("symbol", "interval", "series_type", "datatype"),
-    #"DEMA": ("symbol", "interval", "series_type", "datatype"),
-    #"TEMA": ("symbol", "interval", "series_type", "datatype"),
-    #"TRIMA": ("symbol", "interval", "series_type", "datatype"),
-    #"KAMA": ("symbol", "interval", "series_type", "datatype"),
-    #"MAMA": ("symbol", "interval", "series_type", "datatype"),
-    #"T3": ("symbol", "interval", "series_type", "datatype"),
-    #"MACD": ("symbol", "interval", "series_type", "datatype"),
-    #"MACDEXT": ("symbol", "interval", "series_type", "datatype"),
-    #"STOCH": ("symbol", "interval", "series_type", "datatype"ibm),
-    #"STOCHF": ("symbol", "interval", "series_type", "datatype"),
-    #"RSI": ("symbol", "interval", "series_type", "datatype"),
-    #"STOCHRSI": ("symbol", "interval", "series_type", "datatype"),
-    #"WILLR": ("symbol", "interval", "series_type", "datatype"),
-    #"ADX": ("symbol", "interval", "series_type", "datatype"),
-    #"ADXR": ("symbol", "interval", "series_type", "datatype"),
-    #"APO": ("symbol", "interval", "series_type", "datatype"),
-    #"PPO": ("symbol", "interval", "series_type", "datatype"),
-    #"MOM": ("symbol", "interval", "series_type", "datatype"),
-    #"BOP": ("symbol", "interval", "series_type", "datatype"),
-    #"CCI": ("symbol", "interval", "series_type", "datatype"),
-    #"CMO": ("symbol", "interval", "series_type", "datatype"),
-    #"ROC": ("symbol", "interval", "series_type", "datatype"),
-    #"ROCR": ("symbol", "interval", "series_type", "datatype"),
-    #"AROON": ("symbol", "interval", "series_type", "datatype"),
-    #"AROONOSC": ("symbol", "interval", "series_type", "datatype"),
-    #"MFI": ("symbol", "interval", "series_type", "datatype"),
-    #"TRIX": ("symbol", "interval", "series_type", "datatype"),
-    #"ULTOSC": ("symbol", "interval", "series_type", "datatype"),
-    #"DX": ("symbol", "interval", "series_type", "datatype"),
-    #"MINUS_DI": ("symbol", "interval", "series_type", "datatype"),
-    #"PLUS_DI": ("symbol", "interval", "series_type", "datatype"),
-    #"MINUS_DM": ("symbol", "interval", "series_type", "datatype"),
-    #"PLUS_DM": ("symbol", "interval", "series_type", "datatype"),
-    #"BBANDS": ("symbol", "interval", "series_type", "datatype"),
-    #"MIDPOINT": ("symbol", "interval", "series_type", "datatype"),
-    #"MIDPRICE": ("symbol", "interval", "series_type", "datatype"),
-    #"SAR": ("symbol", "interval", "series_type", "datatype"),
-    #"TRANGE": ("symbol", "interval", "series_type", "datatype"),
-    #"ATR": ("symbol", "interval", "series_type", "datatype"),
-    #"NATR": ("symbol", "interval", "series_type", "datatype"),
-    #"AD": ("symbol", "interval", "series_type", "datatype"),
-    #"ADOSC": ("symbol", "interval", "series_type", "datatype"),
-    #"OBV": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_TRENDLINE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_SINE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_TRENDMODE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_DCPERIOD": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_DCPHASE": ("symbol", "interval", "series_type", "datatype"),
-    #"HT_PHASOR": ("symbol", "interval", "series_type", "datatype")
+
