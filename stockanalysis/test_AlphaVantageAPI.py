@@ -10,8 +10,12 @@ class AlphaVantageAPI_test(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.alpha = api.AlphaVantage(api_key="&apikey=BXCLSC7GAHP5UGGO", default_datatype="json")
-        self.ticker = "IBM"
+        import json
+        with open('config.json') as cfg:
+            config = json.load(cfg)
+        api_key=f'&apikey={config["alphaVantage"]}'
+        self.alpha = api.AlphaVantage(api_key=api_key, default_datatype="json")
+        self.ticker = config["ticker"]
 
     ### STOCKS
     #print(f'available functions: {alpha.get_available_functions()}')
