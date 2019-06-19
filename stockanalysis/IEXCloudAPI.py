@@ -3,55 +3,29 @@ class IEXCloud(object):
 
     def __init__(self, token, sandbox=False):
         super(IEXCloud, self).__init__()
-        self.api_key = token
-        if sandbox:
-            baseurl = 'https://sandbox.iexapis.com/stable/stock'
+        self.token = token
+        self.sandbox = sandbox
+        if self.sandbox:
+            self.baseurl = 'https://sandbox.iexapis.com/stable/stock'
         else:
-            baseurl = 'https://cloud.iexapis.com/stable/stock'
+            self.baseurl = 'https://cloud.iexapis.com/stable/stock'
 
-        #if default_datatype not in self.accepted_datatypes:
-        #    raise ValueError('%s datatype is not among the accepted: %s' % (self.accepted_datatypes, default_datatypes))
 
-        #self.defaults = {
-        #    "acceleration": default_accelertion,
-        #    "datatype": default_datatype,
-        #    "fastdmatype": default_fastdmatype,
-        #    "fastdperiod": default_fastdperiod,
-        #    "fastkperiod": default_fastkperiod,
-        #    "fastlimit": default_fastlimit,
-        #    "fastperiod": default_fastperiod,
-        #    "matype": default_matype,
-        #    "maximum": default_maximum,
-        #    "ndevdn": default_ndevdn,
-        #    "ndevup": default_ndevup,
-        #    "outputsize": default_outputsize,
-        #    "slowlimit": default_slowlimit,
-        #    "signalperiod": default_signalperiod,
-        #    "slowperiod": default_slowperiod,
-        #    "slowdmatype": default_slowdmatype,
-        #    "slowdperiod": default_slowdperiod,
-        #    "slowkmatype": default_slowkmatype,
-        #    "slowkperiod": default_slowkperiod,
-        #    "timeperiod1": default_timeperiod1,
-        #    "timeperiod2": default_timeperiod2,
-        #    "timeperiod3": default_timeperiod3,
-        #}
-
-        self.functions_defs = {"company":           (("symbol", "r", None)),
-                               "dividend":          (("symbol", "r", None),
-                                                     ("range", ("next", "1yr", "2yr", "5Yr", "9mo", "6mo", "3mo"))
+        self.functions_defs = {"company":           (("symbol", "r", None,),),
+                               "dividends":         (("symbol", "r", None,),
+                                                     ("range", "q", ("next", "1y", "2y", "5y", "ytd", "6m", "3m", "1m",),)
                                                     ),
-                               "balance-sheet":     (("symbol", "r", None),
-                                                     ("period", "q", ("annual", "quarter")),
-                                                     ("last", "q", (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12))
+                               "balance_sheet":     (("symbol", "r", None,),
+                                                     ("period", "q", ("annual", "quarter",),),
+                                                     ("last", "q", (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12),)
                                                     ),
-                               "cash-flow":         (("symbol", "r", None),
-                                                     ("period", "q", ("annual", "quarter")),
-                                                     ("last", "q", (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12))
+                               "cash_flow":         (("symbol", "r", None,),
+                                                     ("period", "q", ("annual", "quarter",)),
+                                                     ("last", "q", (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,),)
                                                     ),
-                               "income":            (("symbol", "r", None),
-                                                     ("period", "q", ("annual", "quarter")),
-                                                     ("last", "q", (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12))
+                               "income":            (("symbol", "r", None,),
+                                                     ("period", "q", ("annual", "quarter",),),
+                                                     ("last", "q", (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,),)
                                                     ),
 
                                }
@@ -80,54 +54,88 @@ class IEXCloud(object):
         def __get(**params):
             import requests
 
-            arg_list = set(self.functions_defs[function_name])
-
-            required_defaults = {}
-            for k in self.functions_defs[function_name]:
-                if k in self.defaults:
-                    required_defaults[k] = self.defaults[k]
-
-            for k in required_defaults:
-                if k not in params:
-                    params[k] = required_defaults[k]
+            arg_list = []
+            for tuple in self.functions_defs[function_name]:
+                #print(f'tuple: {tuple}')
+                arg_list.append(tuple[0])
+            #print(f'arg_list: {arg_list}')
+            arg_list = set(arg_list)
 
             args = set(params.keys())
 
-            if arg_list != args:
+            #print('*'*20)
+            #print(f'arg_list: {arg_list}')
+            #print(f'args: {args}')
+            if args.issubset(arg_list):
+                pass
+            else:
                 raise ValueError("function %s needs the following arguments: %s.\nGot: %s.\nDefaults: %s" % (
                 function_name, arg_list, args, self.defaults))
 
-            if "datatype" in params:
-                datatype = params["datatype"]
-            else:
-                datatype = self.default_datatype
-
             bind_vars = {
-                "apikey": self.api_key,
+                "apikey": self.token,
                 "function": function_name
             }
 
+            #print(f'params: {params}')
+            #print(f'bind_vars: {bind_vars}')
             bind_vars.update(params)
+            #print(f'bind_vars: {bind_vars}')
 
-            str_vars = []
-            for k, v in bind_vars.items():
-                str_vars.append("%s=%s" % (k, v))
-            str_vars = '&'.join(str_vars)
+            str = ''
+            seperator = '?'
+            #print(f'--- for loop ---')
+            for item in self.functions_defs[function_name]:
+                #print(f'item: {item}')
+                #print(f'bind_vars: {bind_vars}')
+                if item[0] in bind_vars:
+                    #print(f'\titem[1]: {item[1]}')
+                    if item[1] == "r":
+                        #print(f'\t\t{item[1]}')
+                        #print(f'\t\tbind_vrs[item[0]]: {bind_vars[item[0]]}')
+                        #print(f'\t\titem[2]: {item[2]}')
+                        str = f'{str}/{bind_vars[item[0]]}/{function_name.replace("_", "-")}'
+                    elif item[1] == "p":
+                        #print(f'\t\t{item[1]}')
+                        #print(f'\t\tbind_vrs[item[0]]: {bind_vars[item[0]]}')
+                        #print(f'\t\titem[2]: {item[2]}')
+                        if bind_vars[item[0]] in item[2]:
+                            #print(f'\t\t\tFound in item[2]')
+                            #print(f'\t\t\tbind_vrs[item[0]]: {bind_vars[item[0]]}')
+                            #print(f'\t\t\titem[2]: {item[2]}')
+                            str = f'{str}/{bind_vars[item[0]]}'
+                        else:
+                            #print(f'\t\t\tNOT Found in item[2]')
+                            #print(f'\t\t\tbind_vrs[item[0]]: {bind_vars[item[0]]}')
+                            #print(f'\t\t\titem[2]: {item[2]}')
+                            raise ValueError(f"function ({function_name}/{item[0]}) has has an invalid value {bind_vars[item[0]]}")
+                    elif item[1] == 'q':
+                        #print(f'\t\t{item[1]}')
+                        #print(f'\t\tbind_vrs[item[0]]: {bind_vars[item[0]]}')
+                        #print(f'\t\titem[2]: {item[2]}')
+                        if bind_vars[item[0]] in item[2]:
+                            #print(f'\t\t\tFound in item[2]')
+                            #print(f'\t\t\tbind_vrs[item[0]]: {bind_vars[item[0]]}')
+                            #print(f'\t\t\titem[2]: {item[2]}')
+                            str = f'{str}{seperator}{item[0]}={bind_vars[item[0]]}'
+                            if seperator == "?":
+                                seperator = '&'
+                        else:
+                            #print(f'\t\t\tNOT Found in item[2]')
+                            #print(f'\t\t\tbind_vrs[item[0]]: {bind_vars[item[0]]}')
+                            #print(f'\t\t\titem[2]: {item[2]}')
+                            raise ValueError(f"function {function_name}/{item[0]} has has an invalid value {bind_vars[item[0]]}")
+                    else:
+                        raise ValueError(f"function {function_name}/{item[0]} has has an invalid type (second entry in tuple")
+                #else:
+                #    print(f'item[0] ({item[0]} not in bind_vars')
+                #    raise ValueError(f"function {function_name/item[0]} has has an invalid parameter value (third entry in tuple")
 
-            if sandbox:
-                url = f"https://sandbox.iexapis.com/stock/{str_vars}"
-            else:
-                url = f"https://cloud.iexapis.com/stock/{str_vars}"
+            url = f'{self.baseurl}{str}{seperator}{self.token}'
+            #print(f'url: {self.baseurl}{str}{seperator}{self.token}')
 
-            print(f'url {url}')
             data = requests.get(url)
-
-            if datatype == "csv":
-                import io
-                return io.BytesIO(data.content)
-
-            import json
-            return json.loads(data.content)
+            return data.json()
 
         return __get
 
