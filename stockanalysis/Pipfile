@@ -5,16 +5,16 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
+jupyter = "*"
+wheel = "*"
 
 [packages]
 #iexfinance = "*"
-wheel = "*"
 #ipython = "*"
 requests = "*"
 #urllib = "*"
 #urllib-parse = "*"
 #xlrd = "*"
-jupyter = "*"
 
 [requires]
 python_version = "3.7"
