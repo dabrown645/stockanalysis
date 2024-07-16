@@ -15,6 +15,7 @@ requests = "*"
 #urllib = "*"
 #urllib-parse = "*"
 #xlrd = "*"
+tornado = "*"
 
 [requires]
 python_version = "3"
