@@ -9,12 +9,8 @@ jupyter = "*"
 wheel = "*"
 
 [packages]
-#iexfinance = "*"
-#ipython = "*"
+jinja2 = "*"
 requests = "*"
-#urllib = "*"
-#urllib-parse = "*"
-#xlrd = "*"
 tornado = "*"
 
 [requires]
